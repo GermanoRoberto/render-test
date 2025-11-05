@@ -102,15 +102,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const vtStats = data.external.virustotal?.stats;
         const vtDetections = vtStats ? `${vtStats.malicious} / ${Object.values(vtStats).reduce((a, b) => a + b, 0)}` : 'N/A';
 
+        // Prepara o HTML da análise de IA
+        let aiHTML = '';
+        if (data.ai_analysis && data.ai_analysis.explanation) {
+            // Simples conversão de Markdown para HTML (negrito e listas)
+            const formattedExplanation = data.ai_analysis.explanation
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // **texto** -> <strong>texto</strong>
+                .replace(/^\s*(\d+\.)\s*(.*)/gm, '<p><strong>$1</strong> $2</p>'); // 1. item -> <p><strong>1.</strong> item</p>
+
+            aiHTML = `<hr style="border-color: var(--border); margin: 1rem 0;">
+                      <h3 style="margin-bottom: 0.5rem;">Relatório da Inteligência Artificial</h3>
+                      <div class="ai-report">${formattedExplanation}</div>`;
+        }
+
         // Cria o HTML dos resultados
         const resultsHTML = `
             <div class="card-body">
                 <h2 style="margin-bottom: 1rem;">Resultado da Análise</h2>
                 <p><strong>Arquivo:</strong> ${data.file_name}</p>
-                <p><strong>SHA256:</strong> <span style="font-family: monospace; font-size: 0.8rem;">${data.sha256}</span></p>
                 <p><strong>Veredito Final:</strong> <span style="color: var(--${verdictClass}); font-weight: bold; text-transform: uppercase;">${data.final_verdict}</span></p>
                 <hr style="border-color: var(--border); margin: 1rem 0;">
                 <p><strong>VirusTotal:</strong> ${vtDetections} detecções</p>
+                ${aiHTML}
                 <button onclick="window.location.reload()" class="btn" style="margin-top: 1.5rem;">Analisar Outro Arquivo</button>
             </div>
         `;

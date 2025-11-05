@@ -91,6 +91,51 @@ function analyzeBuffer(content, filename) {
     };
 }
 
+// Função para consultar a IA (Gemini)
+async function queryAI(verdict, filename, externalResults) {
+    if (!AI_API_KEY) {
+        return { explanation: "A análise por IA não está configurada (chave de API ausente)." };
+    }
+
+    // Construir um prompt detalhado para a IA
+    const vtResult = externalResults.virustotal;
+    let detailedInfo = `O arquivo analisado é "${filename}" com um veredito final de "${verdict}".`;
+    if (vtResult && vtResult.found) {
+        detailedInfo += ` No VirusTotal, ${vtResult.stats.malicious} de ${Object.values(vtResult.stats).reduce((a, b) => a + b, 0)} antivírus o detectaram.`;
+    }
+
+    const basePrompt = `Você é um profissional de cibersegurança. Analise as seguintes informações: ${detailedInfo}
+
+    Forneça uma orientação profissional e detalhada em Markdown, seguindo a estrutura:
+    1.  **Nível de Risco:** (Baixo 🟢, Médio 🟡, Alto 🔴, Crítico ⚫).
+    2.  **Explicação do Risco:** Descreva o impacto potencial e o porquê do veredito.
+    3.  **Recomendação:** Ação clara a ser tomada pelo usuário (ex: "Delete este arquivo imediatamente").
+    4.  **Dicas de Prevenção:** 2 dicas para evitar ameaças futuras.`;
+
+    const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+    try {
+        const response = await axios.post(OPENAI_API_URL, {
+            model: "gpt-3.5-turbo", // Modelo padrão da OpenAI
+            messages: [{
+                role: "user",
+                content: basePrompt
+            }]
+        }, {
+            headers: { 'Authorization': `Bearer ${AI_API_KEY}` }
+        });
+
+        if (response.data.choices && response.data.choices.length > 0) {
+            return { explanation: response.data.choices[0].message.content };
+        } else {
+            return { explanation: "A resposta da OpenAI retornou vazia." };
+        }
+    } catch (error) {
+        console.error("Erro na API OpenAI:", error.response ? error.response.data : error.message);
+        return { error: "Falha ao comunicar com a API de IA." };
+    }
+}
+
 // --- 9. Definição das Rotas (Endpoints) ---
 
 app.get('/', (req, res) => {
@@ -126,11 +171,14 @@ app.post('/api/scan', upload.single('file'), async (req, res) => {
     const externalResults = { virustotal: vtResult };
     const finalVerdict = calculateFinalVerdict(localResult.verdict, externalResults);
 
+    // Chama a análise de IA
+    const aiAnalysis = await queryAI(finalVerdict, filename, externalResults);
+
     const result = {
         ...localResult,
         external: externalResults,
         final_verdict: finalVerdict,
-        // A análise de IA pode ser adicionada aqui de forma similar
+        ai_analysis: aiAnalysis
     };
 
     // Responde diretamente com o objeto de resultado em JSON
