@@ -92,6 +92,11 @@ function calculateFinalVerdict(localVerdict, externalResults) {
     if (vtResult && vtResult.found) {
         return vtResult.verdict;
     }
+    // Se o VirusTotal foi consultado mas não encontrou o item, retornamos um status específico.
+    if (vtResult && vtResult.found === false) {
+        return 'not_found';
+    }
+
     return localVerdict; // Retorna o veredito local se o VT não encontrar nada.
 }
 

@@ -171,7 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'malicious': 'danger',
             'suspicious': 'warning',
             'clean': 'success',
-            'unknown': 'muted'
+            'unknown': 'muted',
+            'not_found': 'muted' // Adiciona o novo status para estilização
         }[data.final_verdict] || 'muted';
 
         const vtStats = data.external.virustotal?.stats;
@@ -194,12 +195,18 @@ document.addEventListener('DOMContentLoaded', () => {
                       <div class="ai-report">${formattedExplanation}</div>`;
         }
 
+        // Define o texto do veredito com base no status
+        let verdictText = data.final_verdict.toUpperCase();
+        if (data.final_verdict === 'not_found') {
+            verdictText = 'NÃO LOCALIZADO NO BANCO DE DADOS';
+        }
+
         // Cria o HTML dos resultados
         const resultsHTML = `
             <div class="card-body">
                 <h2 style="margin-bottom: 1rem;">Resultado da Análise</h2>
                 <p><strong>Item Analisado:</strong> ${data.file_name || data.url}</p>
-                <p><strong>Veredito Final:</strong> <span style="color: var(--${verdictClass}); font-weight: bold; text-transform: uppercase;">${data.final_verdict}</span></p>
+                <p><strong>Veredito Final:</strong> <span style="color: var(--${verdictClass}); font-weight: bold; text-transform: uppercase;">${verdictText}</span></p>
                 <hr style="border-color: var(--border); margin: 1rem 0;">
                 <p><strong>VirusTotal:</strong> ${vtDetections} detecções</p>
                 ${aiHTML}
