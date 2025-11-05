@@ -159,9 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Esconde todas as seções de formulário/sobre
         [fileSection, urlSection, aboutSection].forEach(sec => sec.style.display = 'none');
 
-        // Esconde o formulário
-        formContainer.style.display = 'none';
-
         const verdictClass = {
             'malicious': 'danger',
             'suspicious': 'warning',
