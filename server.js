@@ -100,8 +100,6 @@ function analyzeBuffer(content, filename) {
     };
 }
 
-    const msgType = messageData.type;
-
 // --- 9. Definição das Rotas (Endpoints) ---
 
 app.get('/', (req, res) => {
