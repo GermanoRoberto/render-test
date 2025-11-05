@@ -1,148 +1,30 @@
-﻿﻿﻿﻿﻿﻿﻿﻿<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Analisador Malware — Interface Minimalista</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
-  </head>
-  <body>
-    <main class="container">
-      <section class="app-card">
-        <header class="card-header">
-          <h1>Analisador de Malware</h1>
-        </header>
+﻿﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Malware</title>
 
-        <div class="info">
-          <h3>O que este programa faz?</h3>
-          <p>Esta ferramenta foi criada para ajudar você a verificar a segurança de arquivos e endereços de internet (URLs). Veja como ela funciona de forma simples:</p>
-          <ol>
-            <li><strong>Você envia um arquivo ou uma URL:</strong> Pode ser um documento, um programa, ou um link de um site que você desconfia.</li>
-            <li><strong>Análise Profunda:</strong> A ferramenta envia o que você forneceu para sistemas de segurança avançados na internet. Esses sistemas usam vários "olhos" (motores de detecção) para procurar por qualquer sinal de perigo.</li>
-            <li><strong>Simulação Segura (Sandbox):</strong> Além disso, o arquivo ou URL é testado em um ambiente virtual seguro, como uma "caixa de areia" (sandbox). Isso permite que a ferramenta observe o comportamento do item sem que ele cause qualquer dano ao seu computador.</li>
-            <li><strong>Identificação de Ameaças:</strong> Se algo malicioso for encontrado, como vírus, programas espiões ou links perigosos, a ferramenta irá identificar.</li>
-            <li><strong>Resultado Claro:</strong> No final, você recebe um relatório fácil de entender, mostrando se o arquivo ou URL é seguro, suspeito ou malicioso, e o que você pode fazer a respeito.</li>
-          </ol>
-          <p>Tudo isso é feito de forma segura e remota, protegendo seu computador de qualquer risco durante a análise.</p>
-        </div>
+    <!-- ADAPTAÇÃO CORRETA: O caminho começa com '/' e aponta para o arquivo dentro da pasta 'static' -->
+    <link rel="stylesheet" href="/css/style.css">
 
-        <div id="key-alert" class="alert success" hidden>
-          <span>Chaves carregadas! Pronto para analisar.</span>
-        </div>
+</head>
+<body>
 
-        <form id="main-form" class="card-body" onsubmit="return false">
-          <div class="tabs">
-            <button id="tab-file" class="tab active">Analisar Arquivo</button>
-            <button id="tab-url" class="tab">Analisar URL</button>
-          </div>
+    <header>
+        <h1>Analisador de Malware</h1>
+    </header>
 
-          <!-- Seção de Análise de Arquivo -->
-          <div id="file-input-section" class="input-section">
-            <label class="field-label">Arquivo (máx. 32MB)</label>
-            <div class="file-row">
-              <input id="file-input" type="file" />
-              <span id="file-name" class="file-name">Nenhum arquivo escolhido</span>
-            </div>
-          </div>
-
-          <!-- Seção de Análise de URL -->
-          <div id="url-input-section" class="input-section" style="display:none;">
-            <label class="field-label">URL para Análise</label>
-            <input id="url-input" type="text" placeholder="https://exemplo.com/arquivo.exe" />
-          </div>
-
-          <!-- Seção de Configurações de API removida, pois as chaves agora são gerenciadas no servidor -->
-
-
-          <div id="analysis-time-warning" class="alert warning" style="display:none;">
-            <span>A análise pode levar vários minutos (até 30 minutos), especialmente devido à análise detalhada do Tria.ge. Por favor, aguarde.</span>
-          </div>
-          <button id="analyze" class="btn large danger">Iniciar Análise</button>
+    <main>
+        <!-- Seu formulário de upload e outros elementos da UI aqui -->
+        <form id="upload-form">
+            <input type="file" name="file" id="file-input" required>
+            <button type="submit">Analisar Arquivo</button>
         </form>
+    </main>
 
-        <!-- Seção de Configurações para Chaves Ausentes -->
-        <section class="settings-section">
-          <details class="api-details">
-            <summary class="api-summary">Configurações</summary>
-            <div class="api-content">
-              {% if not key_status.VT_API_KEY or not key_status.TRIAGE_API_KEY or not key_status.AI_API_KEY or not key_status.WHATSAPP_VERIFY_TOKEN or not key_status.WHATSAPP_ACCESS_TOKEN or not key_status.WHATSAPP_PHONE_NUMBER_ID %}
-                <p>Uma ou mais chaves de API não foram configuradas. Adicione-as abaixo para habilitar todas as funcionalidades.</p>
-                
-                {% if not key_status.VT_API_KEY %}
-                <form class="update-key-form" data-key-name="VT_API_KEY">
-                  <div class="input-group">
-                    <label for="vt-key-update" class="field-label">Chave API VirusTotal</label>
-                    <input id="vt-key-update" type="password" placeholder="Cole sua chave do VirusTotal aqui">
-                    <button type="submit" class="btn primary">Salvar</button>
-                  </div>
-                </form>
-                {% endif %}
+    <!-- ADAPTAÇÃO CORRETA: O script é chamado no final do body, com o caminho começando com '/' -->
+    <script src="/js/main.js"></script>
 
-                {% if not key_status.TRIAGE_API_KEY %}
-                <form class="update-key-form" data-key-name="TRIAGE_API_KEY">
-                  <div class="input-group">
-                    <label for="triage-key-update" class="field-label">Chave API Tria.ge</label>
-                    <input id="triage-key-update" type="password" placeholder="Cole sua chave do Tria.ge aqui">
-                    <button type="submit" class="btn primary">Salvar</button>
-                  </div>
-                </form>
-                {% endif %}
-
-                {% if not key_status.AI_API_KEY %}
-                <form class="update-key-form" data-key-name="AI_API_KEY">
-                  <div class="input-group">
-                    <label for="ai-key-update" class="field-label">Chave API de IA (Gemini/OpenAI)</label>
-                    <input id="ai-key-update" type="password" placeholder="Cole sua chave de IA aqui">
-                    <button type="submit" class="btn primary">Salvar</button>
-                  </div>
-                </form>
-                {% endif %}
-
-                {% if not key_status.WHATSAPP_VERIFY_TOKEN %}
-                <form class="update-key-form" data-key-name="WHATSAPP_VERIFY_TOKEN">
-                  <div class="input-group">
-                    <label for="whatsapp-verify-update" class="field-label">WhatsApp - Token de Verificação</label>
-                    <input id="whatsapp-verify-update" type="password" placeholder="Cole seu token de verificação do WhatsApp">
-                    <button type="submit" class="btn primary">Salvar</button>
-                  </div>
-                </form>
-                {% endif %}
-
-                {% if not key_status.WHATSAPP_ACCESS_TOKEN %}
-                <form class="update-key-form" data-key-name="WHATSAPP_ACCESS_TOKEN">
-                  <div class="input-group">
-                    <label for="whatsapp-access-update" class="field-label">WhatsApp - Token de Acesso</label>
-                    <input id="whatsapp-access-update" type="password" placeholder="Cole seu token de acesso do WhatsApp">
-                    <button type="submit" class="btn primary">Salvar</button>
-                  </div>
-                </form>
-                {% endif %}
-
-                {% if not key_status.WHATSAPP_PHONE_NUMBER_ID %}
-                <form class="update-key-form" data-key-name="WHATSAPP_PHONE_NUMBER_ID">
-                  <div class="input-group">
-                    <label for="whatsapp-phone-update" class="field-label">WhatsApp - ID do Número de Telefone</label>
-                    <input id="whatsapp-phone-update" type="password" placeholder="Cole o ID do seu número de telefone">
-                    <button type="submit" class="btn primary">Salvar</button>
-                  </div>
-                </form>
-                {% endif %}
-
-              {% else %}
-                <div class="alert success">Todas as chaves de API estão configuradas!</div>
-              {% endif %}
-            </div>
-          </details>
-        </section>
-
-
-
-
-        <footer class="card-footer">
-          <small>Versão 2.2 • <a href="/faq">FAQ</a> • Projeto local</small>
-        </footer>
-      </section>
-
-    <script src="/static/js/app.js"></script>
-  </body>
+</body>
 </html>
