@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Configuração Inicial - Analisador de Malware</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <style>
+      .setup-container {
+        max-width: 720px;
+        margin: 50px auto;
+        padding: 2rem;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+      .form-input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--glass);
+        background: transparent;
+        color: var(--text);
+        transition: all 0.3s ease;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+      }
+      .form-actions {
+        margin-top: 2rem;
+      }
+      .btn-full {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="app-card setup-container">
+        <header class="card-header">
+          <h1>Configuração Inicial</h1>
+        </header>
+        <div class="card-body">
+          <p>Bem-vindo ao Analisador de Malware. Para começar, por favor, insira suas chaves de API. Você pode deixar em branco as que não tiver e adicioná-las mais tarde.</p>
+          
+          <form id="setup-form" action="/api/setup" method="POST">
+            <div class="form-group">
+              <label for="vt-key" class="form-label">Chave API VirusTotal</label>
+              <input id="vt-key" name="VT_API_KEY" type="password" class="form-input" placeholder="Cole sua chave do VirusTotal aqui">
+            </div>
+            
+            <div class="form-group">
+              <label for="triage-key" class="form-label">Chave API Tria.ge</label>
+              <input id="triage-key" name="TRIAGE_API_KEY" type="password" class="form-input" placeholder="Cole sua chave do Tria.ge aqui">
+            </div>
+
+            <div class="form-group">
+              <label for="ai-key" class="form-label">Chave API de IA (Gemini ou OpenAI)</label>
+              <input id="ai-key" name="AI_API_KEY" type="password" class="form-input" placeholder="Cole sua chave de IA aqui">
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn large primary btn-full">Salvar e Iniciar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

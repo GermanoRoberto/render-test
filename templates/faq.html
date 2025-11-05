@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FAQ - Analisador de Malware</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <style>
+      .faq-container { 
+        max-width: 800px; 
+        margin: 30px auto; 
+        padding: 20px;
+      }
+      .faq-item {
+        background: var(--card);
+        border: 1px solid var(--glass);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        padding: 1.5rem;
+      }
+      .faq-question {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+        color: var(--accent);
+      }
+      .faq-answer {
+        margin: 0;
+        line-height: 1.7;
+      }
+      .faq-answer a {
+        color: var(--accent-2);
+        text-decoration: none;
+      }
+      .faq-answer a:hover {
+        text-decoration: underline;
+      }
+      .faq-answer code {
+        background: rgba(0,0,0,0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+      .home-link {
+          display: block;
+          text-align: center;
+          margin-top: 2rem;
+          color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="faq-container">
+      <header style="text-align: center; margin-bottom: 2rem;">
+        <h1>Perguntas Frequentes (FAQ)</h1>
+      </header>
+
+      <div class="faq-item">
+        <h2 class="faq-question">O que esta ferramenta faz?</h2>
+        <p class="faq-answer">Esta ferramenta é uma interface web que permite analisar arquivos e URLs em busca de ameaças de segurança. Ela utiliza APIs de serviços renomados como VirusTotal e Tria.ge, além de IAs Generativas (Google Gemini ou OpenAI) para fornecer um resumo claro dos riscos.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2 class="faq-question">Preciso de chaves de API para usar a ferramenta?</h2>
+        <p class="faq-answer">Sim. Para que as análises externas funcionem, você precisa fornecer as chaves de API dos serviços. A análise local (identificação de tipo de arquivo e strings) funciona sem chaves, mas é muito limitada.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2 class="faq-question">Onde consigo as chaves de API?</h2>
+        <p class="faq-answer">
+          Você pode obtê-las gratuitamente nos sites oficiais de cada serviço:
+          <ul>
+            <li><strong>VirusTotal:</strong> <a href="https://www.virustotal.com/gui/my-apikey" target="_blank">virustotal.com/gui/my-apikey</a></li>
+            <li><strong>Tria.ge:</strong> <a href="https://tria.ge/account" target="_blank">tria.ge/account</a></li>
+            <li><strong>Google Gemini:</strong> <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></li>
+            <li><strong>OpenAI (ChatGPT):</strong> <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></li>
+          </ul>
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h2 class="faq-question">Como eu configuro as minhas chaves na aplicação?</h2>
+        <p class="faq-answer">As chaves de API podem ser configuradas diretamente na interface da aplicação. Na página inicial, clique em "Configurações" para expandir a seção e insira suas chaves nos campos apropriados. As chaves são salvas automaticamente e a aplicação será recarregada para aplicar as alterações.</p>
+      </div>
+
+      <div class="faq-item">
+        <h2 class="faq-question">A aplicação não abre e o navegador mostra "localhost recusou a conexão". O que fazer?</h2>
+        <p class="faq-answer">Este erro geralmente significa que o servidor não conseguiu iniciar. Verifique a janela do terminal que o <code>iniciar.bat</code> abriu. Ela deve conter uma mensagem de erro. As causas mais comuns são:
+          <ul>
+            <li>Uma ou mais dependências não foram instaladas corretamente. Tente executar <code>pip install -r requirements.txt</code> na pasta <code>app</code>.</li>
+            <li>As chaves de API no arquivo <code>.env</code> podem estar em um formato inválido. Execute o <code>configurar_chaves.py</code> novamente para garantir que estão corretas.</li>
+          </ul>
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h2 class="faq-question">É seguro enviar meus arquivos para esta ferramenta?</h2>
+        <p class="faq-answer">Sim. A análise de arquivos e URLs é executada em ambientes seguros e remotos (sandboxes) fornecidos pelas APIs (VirusTotal, Tria.ge), e não na sua máquina local. O arquivo é enviado diretamente para eles.</p>
+      </div>
+
+      <a href="/" class="home-link">Voltar para a página inicial</a>
+
+    </main>
+  </body>
+</html>

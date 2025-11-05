@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Configurações — Analisador Malware</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/settings.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="app-card">
+        <header class="card-header">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h1>⚙️ Configurações</h1>
+            <a href="/" class="btn" style="font-size:14px">
+              <span class="btn-icon">←</span> Voltar
+            </a>
+          </div>
+        </header>
+
+        <div class="card-body">
+          <div class="settings-header">
+            <h2 class="settings-title">🛡️ Serviços de Análise</h2>
+            <p class="settings-subtitle">Configure suas ferramentas de proteção</p>
+          </div>
+          
+          <div class="api-services">
+            <!-- VirusTotal -->
+            <div class="service-card">
+              <div class="service-header">
+                <div class="service-icon-wrapper">
+                  <span class="service-emoji">🛡️</span>
+                </div>
+                <h3>VirusTotal</h3>
+              </div>
+              <p class="service-description">
+                <span class="highlight">70+ antivírus</span> e ferramentas de segurança para análise profunda de ameaças.
+              </p>
+              <div class="service-form">
+                <label class="field-label">Chave de API</label>
+                <div class="key-input-group">
+                  <input type="password" id="vt-key" placeholder="Cole sua chave do VirusTotal aqui" />
+                  <button class="btn animate-hover" id="validate-vt">
+                    <span class="btn-icon">🔑</span> Validar
+                  </button>
+                </div>
+                <div class="key-status" id="vt-status"></div>
+                <div class="service-links">
+                  <a href="https://www.virustotal.com/gui/my-apikey" target="_blank" class="animate-hover">
+                    <span class="link-icon">🔒</span> Obter chave
+                  </a>
+                  <a href="https://developers.virustotal.com/reference/overview" target="_blank" class="animate-hover">
+                    <span class="link-icon">📚</span> Documentação
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tria.ge -->
+            <div class="service-card">
+              <div class="service-header">
+                <div class="service-icon-wrapper">
+                  <span class="service-emoji">🧪</span>
+                </div>
+                <h3>Tria.ge</h3>
+              </div>
+              <p class="service-description">
+                <span class="highlight">Sandbox avançado</span> para análise comportamental detalhada de malware.
+              </p>
+              <div class="service-form">
+                <label class="field-label">Chave de API</label>
+                <div class="key-input-group">
+                  <input type="password" id="triage-key" placeholder="Cole sua chave do Tria.ge aqui" />
+                  <button class="btn animate-hover" id="validate-triage">
+                    <span class="btn-icon">🔑</span> Validar
+                  </button>
+                </div>
+                <div class="key-status" id="triage-status"></div>
+                <div class="service-links">
+                  <a href="https://tria.ge/account" target="_blank" class="animate-hover">
+                    <span class="link-icon">🔒</span> Obter chave
+                  </a>
+                  <a href="https://tria.ge/docs" target="_blank" class="animate-hover">
+                    <span class="link-icon">📚</span> Documentação
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="save-keys" class="custom-checkbox" />
+              <label for="save-keys" class="checkbox-label">
+                <span class="checkbox-icon">💾</span> 
+                Salvar chaves no navegador
+              </label>
+            </div>
+            <button id="save-settings" class="btn large animate-hover pulse">
+              <span class="btn-icon">✨</span> Salvar Configurações
+            </button>
+          </div>
+        </div>
+
+        <footer class="card-footer">
+          <small>As chaves são armazenadas apenas localmente quando a opção está marcada.</small>
+        </footer>
+      </section>
+    </main>
+    <script src="/static/js/settings.js"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+# Arquivo de configuração "Blueprint" para o Render.
+# Coloque este arquivo na raiz do seu repositório.
+# Documentação: https://render.com/docs/blueprint-spec
+
+services:
+  # Um Serviço Web para a aplicação Flask
+  - type: web
+    name: analisador-malware # Você pode mudar este nome
+    runtime: node
+    # IMPORTANTE: Substitua pela URL do seu repositório no GitHub
+    repo: https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+    branch: main # Ou o nome da sua branch principal
+    buildCommand: "npm install"
+    # Executa o script "start" definido no package.json
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_VERSION # Opcional: Especifica a versão do Node.js
+        value: 18
+      - key: VT_API_KEY
+        fromSecret: true # Indica que o valor virá dos "Secret Files" ou variáveis de ambiente do Render
+      - key: TRIAGE_API_KEY
+        fromSecret: true
+      - key: AI_API_KEY
+        fromSecret: true
+      - key: WHATSAPP_ACCESS_TOKEN
+        fromSecret: true
+      - key: WHATSAPP_VERIFY_TOKEN
+        fromSecret: true
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        fromSecret: true
