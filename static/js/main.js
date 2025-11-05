@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInputWrapper = document.querySelector('.file-input-wrapper');
     const fileNameDisplay = document.getElementById('file-name');
     const fileSubmitBtn = document.getElementById('file-submit-btn');
+    const urlSubmitBtn = document.getElementById('url-submit-btn');
     const loaderOverlay = document.getElementById('loader-overlay');
 
     // Elementos das Abas
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para habilitar/desabilitar o botão de análise.
     function updateButtonState() {
         fileSubmitBtn.disabled = fileInput.files.length === 0;
+        urlSubmitBtn.disabled = urlInput.value.trim() === '';
     }
 
     // Função para mostrar o nome do arquivo selecionado.
@@ -61,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fileSection.style.display = 'none';
         urlSection.style.display = 'none';
     });
+
+    // Quando o usuário digita no campo de URL.
+    urlInput.addEventListener('input', updateButtonState);
 
     // Quando um arquivo é selecionado pelo clique.
     fileInput.addEventListener('change', displayFileName);
@@ -152,6 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
             loaderOverlay.style.display = 'none';
         }
     });
+
+    // Inicia os botões no estado correto.
+    updateButtonState();
 
     // Função para renderizar os resultados dinamicamente
     function renderResults(data) {
