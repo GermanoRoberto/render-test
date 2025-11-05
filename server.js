@@ -6,6 +6,7 @@ const multer = require('multer');
 const axios = require('axios');
 const crypto = require('crypto');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session); // Importa o file store
 
 // --- 2. Carregamento de Variáveis de Ambiente ---
 dotenv.config();
@@ -36,10 +37,16 @@ app.engine('html', require('ejs').renderFile); // Usar EJS para renderizar HTML 
 app.set('views', path.join(__dirname, 'templates')); // Definir a pasta de templates
 
 // Configuração da Session
+// O FileStore irá criar uma pasta 'sessions' para salvar os dados de forma persistente.
 app.use(session({
+    store: new FileStore({
+        path: './sessions', // Caminho para a pasta de sessões
+        ttl: 86400, // Tempo de vida da sessão em segundos (1 dia)
+        retries: 0
+    }),
     secret: crypto.randomBytes(24).toString('hex'), // Chave secreta para a session
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false, // Não salva sessões vazias
     cookie: { secure: process.env.NODE_ENV === 'production' } // Usar cookies seguros em produção
 }));
 
