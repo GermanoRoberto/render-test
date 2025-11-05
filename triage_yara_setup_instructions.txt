@@ -1,0 +1,62 @@
+Instruções para Configurar Regras YARA no Tria.ge:
+
+Para que o Tria.ge utilize suas regras YARA durante a análise de arquivos e URLs submetidos por esta aplicação, você precisa configurá-las diretamente na plataforma Tria.ge. Não há alterações de código necessárias nesta aplicação para "enviar" regras YARA, pois elas são aplicadas pelo próprio Tria.ge.
+
+Siga os passos abaixo para adicionar suas regras YARA:
+
+1.  **Acesse a Plataforma Tria.ge:**
+    *   Faça login na sua conta Tria.ge (https://tria.ge/).
+
+2.  **Navegue até a Seção YARA:**
+    *   No menu principal, vá para a aba "Researcher".
+    *   Dentro do submenu, selecione "Yara".
+    *   Alternativamente, você pode encontrar a seção YARA na aba "Organization" -> "Yara".
+
+3.  **Crie uma Nova Regra YARA:**
+    *   Clique em "New Yara Rule".
+    *   **Nome do Arquivo:** Insira um nome descritivo para sua regra YARA (ex: `minha_primeira_regra.yar`).
+    *   **Editor de Regras:** Utilize o editor fornecido para digitar ou colar o conteúdo da sua regra YARA. Certifique-se de que a sintaxe YARA esteja correta.
+
+4.  **Utilize Metadados Opcionais (Recomendado):**
+    Para melhorar a forma como o Tria.ge processa e exibe os resultados da sua regra, considere adicionar os seguintes metadados dentro da sua regra YARA:
+    *   `description`: Usado como o título da assinatura, visível na interface principal do Tria.ge.
+        Exemplo: `meta: description = "Detecta malware da família Exemplo"`
+    *   `triage_description`: Fornece uma descrição mais detalhada da assinatura.
+        Exemplo: `meta: triage_description = "Esta regra identifica padrões específicos de comunicação C2 usados pelo malware Exemplo." `
+    *   `triage_score`: Define a pontuação de risco atribuída se a regra for acionada (1-4 para benigno/informativo, 10 para malicioso).
+        Exemplo: `meta: triage_score = 10`
+    *   `triage_tags`: Define tags que serão aplicadas à análise (ex: `dropper`, `trojan`, `ransomware`).
+        Exemplo: `meta: triage_tags = "trojan, backdoor"`
+    *   `triage_family`: Marca a amostra como pertencente a uma família de malware específica. Se definido, a amostra receberá automaticamente uma pontuação de 10.
+        Exemplo: `meta: triage_family = "ExemploMalware"`
+
+5.  **Salve a Regra:**
+    *   Após inserir e revisar sua regra, salve-a.
+
+Uma vez que suas regras YARA estejam configuradas no Tria.ge, qualquer arquivo ou URL que você submeter para análise através desta aplicação (ou diretamente na plataforma Tria.ge) será automaticamente verificado contra essas regras. Os resultados (incluindo vereditos, tags e pontuações) serão incorporados ao relatório de análise do Tria.ge e, consequentemente, utilizados por esta aplicação.
+
+---
+
+**Exemplo de Regra YARA para Identificação do Analisador de Malware:**
+
+```yara
+rule malware_analyzer_identification {
+    meta:
+        description = "Identifica arquivos relacionados ao Analisador de Malware (API Keys e URLs)"
+        triage_description = "Esta regra detecta strings que correspondem aos nomes das variáveis de chaves de API (VirusTotal, Tria.ge, AI) e URLs de serviços externos (Tria.ge) utilizados pelo Analisador de Malware. A detecção pode indicar a presença do próprio analisador, uma versão modificada, ou um arquivo que interage com esses serviços."
+        triage_score = 7
+        triage_tags = "analyzer_tool, api_keys, triage_api"
+        triage_family = "malware_analyzer" # Corrigido para corresponder ao formato [a-z_0-9]+
+    strings:
+        $s1 = "VT_API_KEY" ascii wide
+        $s2 = "TRIAGE_API_KEY" ascii wide
+        $s3 = "AI_API_KEY" ascii wide
+        $s4 = "https://tria.ge/api/v0/samples" ascii wide
+        $s5 = "https://tria.ge/api/v0/search" ascii wide
+        $s6 = "https://www.virustotal.com/api/v3" ascii wide
+        $s7 = "gemini-1.5-flash" ascii wide
+        $s8 = "gpt-3.5-turbo" ascii wide
+    condition:
+        (1 of ($s1, $s2, $s3)) and (1 of ($s4, $s5, $s6)) and (1 of ($s7, $s8))
+}
+```

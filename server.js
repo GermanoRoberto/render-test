@@ -17,15 +17,8 @@ const PORT = process.env.PORT || 3000;
 // Chaves de API
 const {
     VT_API_KEY,
-    TRIAGE_API_KEY,
-    AI_API_KEY,
-    WHATSAPP_ACCESS_TOKEN,
-    WHATSAPP_VERIFY_TOKEN,
-    WHATSAPP_PHONE_NUMBER_ID
+    AI_API_KEY
 } = process.env;
-
-// URLs e Modelos
-const META_API_URL = `https://graph.facebook.com/v19.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
 // Configuração do Multer para upload de arquivos em memória
 const storage = multer.memoryStorage();
@@ -51,18 +44,12 @@ app.use(session({
 }));
 
 // --- 6. Funções Auxiliares ---
-const isConfigured = () => !!(VT_API_KEY || TRIAGE_API_KEY);
-
 const getKeyStatus = () => ({
     VT_API_KEY: !!VT_API_KEY,
-    TRIAGE_API_KEY: !!TRIAGE_API_KEY,
-    AI_API_KEY: !!AI_API_KEY,
-    WHATSAPP_ACCESS_TOKEN: !!WHATSAPP_ACCESS_TOKEN,
-    WHATSAPP_VERIFY_TOKEN: !!WHATSAPP_VERIFY_TOKEN,
-    WHATSAPP_PHONE_NUMBER_ID: !!WHATSAPP_PHONE_NUMBER_ID,
+    AI_API_KEY: !!AI_API_KEY
 });
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms)); // Não é mais necessário
 
 // --- 7. Funções de Análise (traduzidas de Python) ---
 
@@ -86,37 +73,13 @@ async function queryVirustotal(sha256) {
     }
 }
 
-// Função para consultar Tria.ge (exemplo simplificado)
-async function queryTriage(sha256) {
-    if (!TRIAGE_API_KEY) return { found: false, error: "TRIAGE_API_KEY não configurada." };
-    const url = `https://tria.ge/api/v0/search?query=${sha256}`;
-    const headers = { 'Authorization': `Bearer ${TRIAGE_API_KEY}` };
-    try {
-        const response = await axios.get(url, { headers });
-        if (response.data.data && response.data.data.length > 0) {
-            const sample = response.data.data[0];
-            // Em uma implementação real, você faria o polling no overview como no código Python
-            const verdict = sample.verdict || 'unknown';
-            return { found: true, verdict, raw: sample };
-        }
-        return { found: false };
-    } catch (error) {
-        console.error("Erro no Tria.ge:", error.message);
-        return { error: `Erro no Tria.ge: ${error.message}` };
-    }
-}
-
 function calculateFinalVerdict(localVerdict, externalResults) {
-    if (Object.values(externalResults).some(res => res && res.verdict === 'malicious')) {
-        return 'malicious';
+    // Com apenas o VirusTotal, o veredito dele é o final.
+    const vtResult = externalResults.virustotal;
+    if (vtResult && vtResult.found) {
+        return vtResult.verdict;
     }
-    if (Object.values(externalResults).some(res => res && res.verdict === 'suspicious')) {
-        return 'suspicious';
-    }
-    if (Object.values(externalResults).some(res => res && res.verdict === 'clean')) {
-        return 'clean';
-    }
-    return localVerdict;
+    return localVerdict; // Retorna o veredito local se o VT não encontrar nada.
 }
 
 function analyzeBuffer(content, filename) {
@@ -137,105 +100,13 @@ function analyzeBuffer(content, filename) {
     };
 }
 
-// --- 8. Funções de Integração com WhatsApp ---
-
-async function sendWhatsappMessage(to, text) {
-    if (!WHATSAPP_ACCESS_TOKEN || !WHATSAPP_PHONE_NUMBER_ID) {
-        console.error("WhatsApp não configurado. Faltam tokens.");
-        return;
-    }
-    const payload = {
-        messaging_product: "whatsapp",
-        to: to,
-        text: { body: text },
-    };
-    const headers = {
-        "Authorization": `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
-    };
-    try {
-        await axios.post(META_API_URL, payload, { headers });
-        console.log(`Mensagem enviada para ${to}.`);
-    } catch (error) {
-        console.error(`Erro ao enviar mensagem para ${to}:`, error.response ? error.response.data : error.message);
-    }
-}
-
-async function downloadWhatsappMedia(mediaId) {
-    const headers = { "Authorization": `Bearer ${WHATSAPP_ACCESS_TOKEN}` };
-    try {
-        // 1. Obter a URL da mídia
-        const urlInfoResponse = await axios.get(`https://graph.facebook.com/v19.0/${mediaId}`, { headers });
-        const mediaUrl = urlInfoResponse.data.url;
-        if (!mediaUrl) {
-            return { error: "URL de mídia não encontrada na resposta da Meta." };
-        }
-
-        // 2. Baixar o conteúdo da mídia
-        const mediaContentResponse = await axios.get(mediaUrl, { headers, responseType: 'arraybuffer' });
-        return { content: mediaContentResponse.data };
-    } catch (error) {
-        console.error("Erro ao baixar mídia do WhatsApp:", error.message);
-        return { error: `Erro ao baixar mídia: ${error.message}` };
-    }
-}
-
-async function handleWhatsappAnalysis(messageData) {
-    const fromNumber = messageData.from;
     const msgType = messageData.type;
-
-    await sendWhatsappMessage(fromNumber, "Recebido! Iniciando análise, por favor aguarde...");
-
-    if (msgType === 'document') {
-        const mediaId = messageData.document.id;
-        const filename = messageData.document.filename || 'arquivo_whatsapp';
-
-        const { content, error } = await downloadWhatsappMedia(mediaId);
-        if (error) {
-            await sendWhatsappMessage(fromNumber, `Desculpe, não consegui baixar seu arquivo. Erro: ${error}`);
-            return;
-        }
-
-        // --- Lógica de Análise de Arquivo ---
-        const localResult = analyzeBuffer(content, filename);
-        const sha256 = localResult.sha256;
-
-        // Executar análises externas em paralelo
-        const [vtResult, triageResult] = await Promise.all([
-            queryVirustotal(sha256),
-            queryTriage(sha256)
-        ]);
-
-        const externalResults = { virustotal: vtResult, triage: triageResult };
-        const finalVerdict = calculateFinalVerdict(localResult.verdict, externalResults);
-
-        // Formatar resposta
-        const vtDetections = vtResult.stats?.malicious || 0;
-        const triageVerdict = triageResult.verdict || 'N/A';
-
-        const responseText = `--- Análise Concluída ---\n\n` +
-            `Arquivo: ${filename}\n` +
-            `Veredito Final: *${finalVerdict.toUpperCase()}*\n\n` +
-            `Detalhes:\n` +
-            `- VirusTotal: ${vtDetections} detecções\n` +
-            `- Tria.ge: ${triageVerdict}\n\n` +
-            `Recomendação: Com base no veredito '${finalVerdict}', recomendamos cautela.`;
-
-        await sendWhatsappMessage(fromNumber, responseText);
-    } else {
-        await sendWhatsappMessage(fromNumber, "Olá! Por favor, envie um arquivo para análise. Análise de URLs e texto ainda não é suportada via WhatsApp.");
-    }
-}
 
 // --- 9. Definição das Rotas (Endpoints) ---
 
 app.get('/', (req, res) => {
-    if (!isConfigured()) {
-        // Em Node.js, não temos uma página de setup via UI. A configuração é só por .env.
-        // Mostramos uma mensagem de erro ou a página principal com indicadores.
-        res.send("<h1>Aplicação não configurada</h1><p>Por favor, configure as chaves de API nas variáveis de ambiente.</p>");
-        return;
-    }
+    // A página principal sempre será renderizada.
+    // O template index.html mostrará quais chaves estão ativas.
     res.render('index', { key_status: getKeyStatus() });
 });
 
@@ -255,7 +126,7 @@ app.get('/results', (req, res) => {
 
 // Rota de API para análise de arquivo
 app.post('/api/scan', upload.single('file'), async (req, res) => {
-    if (!isConfigured()) {
+    if (!VT_API_KEY) { // Apenas a chave do VT é obrigatória para a análise
         return res.status(403).json({ ok: false, error: "Aplicação não configurada." });
     }
     if (!req.file) {
@@ -271,12 +142,9 @@ app.post('/api/scan', upload.single('file'), async (req, res) => {
     const sha256 = localResult.sha256;
 
     // Executar análises externas em paralelo
-    const [vtResult, triageResult] = await Promise.all([
-        queryVirustotal(sha256),
-        queryTriage(sha256)
-    ]);
+    const vtResult = await queryVirustotal(sha256);
 
-    const externalResults = { virustotal: vtResult, triage: triageResult };
+    const externalResults = { virustotal: vtResult };
     const finalVerdict = calculateFinalVerdict(localResult.verdict, externalResults);
 
     const result = {
@@ -292,41 +160,6 @@ app.post('/api/scan', upload.single('file'), async (req, res) => {
     res.json({ ok: true, redirect: '/results' });
 });
 
-// Rota de API para o Webhook do WhatsApp
-app.get('/api/whatsapp', (req, res) => {
-    const verifyToken = req.query['hub.verify_token'];
-    if (verifyToken === WHATSAPP_VERIFY_TOKEN) {
-        console.log("Webhook do WhatsApp verificado com sucesso!");
-        res.status(200).send(req.query['hub.challenge']);
-    } else {
-        console.warn("Falha na verificação do Webhook. Token inválido.");
-        res.status(403).send("Token de verificação inválido");
-    }
-});
-
-app.post('/api/whatsapp', (req, res) => {
-    const data = req.body;
-    console.log("Webhook do WhatsApp recebido:", JSON.stringify(data, null, 2));
-
-    if (data.object === 'whatsapp_business_account') {
-        data.entry?.forEach(entry => {
-            entry.changes?.forEach(change => {
-                if (change.field === 'messages') {
-                    const messageData = change.value.messages[0];
-                    if (messageData) {
-                        // Não bloqueia a resposta para a Meta. A análise roda em background.
-                        handleWhatsappAnalysis(messageData).catch(err => {
-                            console.error("Erro ao manusear análise do WhatsApp:", err);
-                        });
-                    }
-                }
-            });
-        });
-    }
-
-    res.status(200).json({ status: "ok" });
-});
-
 // Rota de Health Check
 app.get('/api/health', (req, res) => {
     res.json({ ok: true, version: VERSION, runtime: 'node.js' });
@@ -335,7 +168,7 @@ app.get('/api/health', (req, res) => {
 // --- 10. Inicialização do Servidor ---
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
-    if (!isConfigured()) {
-        console.warn("AVISO: Nenhuma chave de API principal (VT ou Triage) foi encontrada. A funcionalidade será limitada.");
+    if (!VT_API_KEY) {
+        console.warn("AVISO: A chave do VirusTotal (VT_API_KEY) não foi encontrada. A funcionalidade de análise estará desativada.");
     }
 });

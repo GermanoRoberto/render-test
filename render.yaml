@@ -18,13 +18,5 @@ services:
         value: 18
       - key: VT_API_KEY
         fromSecret: true # Indica que o valor virá dos "Secret Files" ou variáveis de ambiente do Render
-      - key: TRIAGE_API_KEY
-        fromSecret: true
       - key: AI_API_KEY
-        fromSecret: true
-      - key: WHATSAPP_ACCESS_TOKEN
-        fromSecret: true
-      - key: WHATSAPP_VERIFY_TOKEN
-        fromSecret: true
-      - key: WHATSAPP_PHONE_NUMBER_ID
         fromSecret: true
