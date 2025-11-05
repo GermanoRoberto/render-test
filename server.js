@@ -5,8 +5,6 @@ const dotenv = require('dotenv');
 const multer = require('multer');
 const axios = require('axios');
 const crypto = require('crypto');
-const session = require('express-session');
-const FileStore = require('session-file-store')(session); // Importa o file store
 
 // --- 2. Carregamento de Variáveis de Ambiente ---
 dotenv.config();
@@ -35,20 +33,6 @@ app.use(express.static(path.join(__dirname, 'static'))); // Servir arquivos est�
 app.set('view engine', 'html'); // Configurar para usar arquivos .html
 app.engine('html', require('ejs').renderFile); // Usar EJS para renderizar HTML (permite passar variáveis)
 app.set('views', path.join(__dirname, 'templates')); // Definir a pasta de templates
-
-// Configuração da Session
-// O FileStore irá criar uma pasta 'sessions' para salvar os dados de forma persistente.
-app.use(session({
-    store: new FileStore({
-        path: './sessions', // Caminho para a pasta de sessões
-        ttl: 86400, // Tempo de vida da sessão em segundos (1 dia)
-        retries: 0
-    }),
-    secret: crypto.randomBytes(24).toString('hex'), // Chave secreta para a session
-    resave: false,
-    saveUninitialized: false, // Não salva sessões vazias
-    cookie: { secure: process.env.NODE_ENV === 'production' } // Usar cookies seguros em produção
-}));
 
 // --- 6. Funções Auxiliares ---
 const getKeyStatus = () => ({
@@ -119,16 +103,6 @@ app.get('/faq', (req, res) => {
     res.render('faq');
 });
 
-app.get('/results', (req, res) => {
-    const result = req.session.last_result;
-    if (!result) {
-        return res.redirect('/');
-    }
-    // Limpa o resultado da sessão após exibi-lo
-    req.session.last_result = null;
-    res.render('results', { result });
-});
-
 // Rota de API para análise de arquivo
 app.post('/api/scan', upload.single('file'), async (req, res) => {
     if (!VT_API_KEY) { // Apenas a chave do VT é obrigatória para a análise
@@ -159,10 +133,8 @@ app.post('/api/scan', upload.single('file'), async (req, res) => {
         // A análise de IA pode ser adicionada aqui de forma similar
     };
 
-    // Armazena o resultado na sessão do usuário
-    req.session.last_result = result;
-
-    res.json({ ok: true, redirect: '/results' });
+    // Responde diretamente com o objeto de resultado em JSON
+    res.json({ ok: true, result: result });
 });
 
 // Rota de Health Check

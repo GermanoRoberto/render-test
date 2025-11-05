@@ -71,14 +71,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.json();
 
-            if (result.ok && result.redirect) {
-                window.location.href = result.redirect; // Redireciona para a página de resultados.
+            if (result.ok && result.result) {
+                // Em vez de redirecionar, renderiza os resultados na página
+                renderResults(result.result);
             } else {
                 throw new Error(result.error || 'Ocorreu um erro desconhecido.');
             }
         } catch (error) {
             alert('Erro na análise: ' + error.message);
+        } finally {
             loaderOverlay.style.display = 'none'; // Esconde a tela de "carregando" em caso de erro.
         }
     });
+
+    // Função para renderizar os resultados dinamicamente
+    function renderResults(data) {
+        const resultsContainer = document.getElementById('results-container');
+        const formContainer = document.querySelector('.card-body');
+
+        // Esconde o formulário
+        formContainer.style.display = 'none';
+
+        const verdictClass = {
+            'malicious': 'danger',
+            'suspicious': 'warning',
+            'clean': 'success',
+            'unknown': 'muted'
+        }[data.final_verdict] || 'muted';
+
+        const vtStats = data.external.virustotal?.stats;
+        const vtDetections = vtStats ? `${vtStats.malicious} / ${Object.values(vtStats).reduce((a, b) => a + b, 0)}` : 'N/A';
+
+        // Cria o HTML dos resultados
+        const resultsHTML = `
+            <div class="card-body">
+                <h2 style="margin-bottom: 1rem;">Resultado da Análise</h2>
+                <p><strong>Arquivo:</strong> ${data.file_name}</p>
+                <p><strong>SHA256:</strong> <span style="font-family: monospace; font-size: 0.8rem;">${data.sha256}</span></p>
+                <p><strong>Veredito Final:</strong> <span style="color: var(--${verdictClass}); font-weight: bold; text-transform: uppercase;">${data.final_verdict}</span></p>
+                <hr style="border-color: var(--border); margin: 1rem 0;">
+                <p><strong>VirusTotal:</strong> ${vtDetections} detecções</p>
+                <button onclick="window.location.reload()" class="btn" style="margin-top: 1.5rem;">Analisar Outro Arquivo</button>
+            </div>
+        `;
+
+        resultsContainer.innerHTML = resultsHTML;
+    }
 });
