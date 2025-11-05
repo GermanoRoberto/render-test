@@ -138,8 +138,7 @@ async function queryAI(verdict, filename, externalResults) {
     2.  **Explicação do Risco:** Descreva o impacto potencial e o porquê do veredito.
     3.  **Recomendação:** Ação clara a ser tomada pelo usuário (ex: "Delete este arquivo imediatamente").
     4.  **Dicas de Prevenção:** 2 dicas para evitar ameaças futuras.
-
-    **ATENÇÃO (Conteúdo Adulto):** Se a análise da URL indicar que se trata de um site de conteúdo adulto, além da análise de segurança, adicione uma seção especial chamada "Nota Adicional" e inclua a seguinte mensagem: "Se o acesso a este tipo de conteúdo está causando desconforto ou problemas em sua vida, saiba que existem recursos disponíveis. Considerar conversar com um profissional de saúde mental, como um psicólogo, pode ser um passo positivo."`;
+`;
 
     const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
