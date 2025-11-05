@@ -190,8 +190,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 .replace(/Alto 🔴/g, 'Alto <span style="color: var(--danger);">🔴</span>')
                 .replace(/Crítico ⚫/g, 'Crítico <span style="color: var(--danger);">⚫</span>');
 
-            aiHTML = `<hr style="border-color: var(--border); margin: 1rem 0;">
-                      <h3 style="margin-bottom: 0.5rem;">Relatório da Inteligência Artificial</h3>
+            aiHTML = `<hr style="border-color: var(--border); margin: 1.5rem 0;">
+                      <div class="report-header">
+                          <h3>Relatório da IA</h3>
+                          <button id="copy-report-btn" class="copy-btn">
+                              <svg height="14" viewBox="0 0 16 16" version="1.1" width="14" fill="currentColor"><path d="M0 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2Zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Zm3 1.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Z"></path></svg>
+                              Copiar
+                          </button>
+                      </div>
                       <div class="ai-report">${formattedExplanation}</div>`;
         }
 
@@ -215,5 +221,23 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         resultsContainer.innerHTML = resultsHTML;
+
+        // Adiciona a lógica de clique ao botão de copiar, se ele existir
+        const copyBtn = document.getElementById('copy-report-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                const reportText = data.ai_analysis.explanation;
+                navigator.clipboard.writeText(reportText).then(() => {
+                    // Feedback visual de que o texto foi copiado
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = 'Copiado!';
+                    copyBtn.style.color = 'var(--success)';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.style.color = '';
+                    }, 2000);
+                }).catch(err => console.error('Erro ao copiar texto: ', err));
+            });
+        }
     }
 });

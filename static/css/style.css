@@ -299,3 +299,31 @@ body {
 .social-links a:hover {
     color: var(--text);
 }
+
+/* --- Botão de Copiar --- */
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.copy-btn {
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.copy-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
