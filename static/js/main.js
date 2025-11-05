@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let aiHTML = '';
         if (data.ai_analysis && data.ai_analysis.explanation) {
             let formattedExplanation = data.ai_analysis.explanation
+                .replace(/#+\s/g, '') // Remove os caracteres de título do Markdown (ex: "### Título" -> "Título")
                 .replace(/\n/g, '<br>') // Converte quebras de linha para <br>
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // **texto** -> <strong>texto</strong>
                 .replace(/Baixo 🟢/g, 'Baixo <span style="color: var(--success);">🟢</span>')
