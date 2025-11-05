@@ -64,6 +64,28 @@ async function queryVirustotal(sha256) {
     }
 }
 
+// Função para consultar VirusTotal para URLs
+async function queryVirustotalUrl(urlToScan) {
+    if (!VT_API_KEY) return { found: false, error: "VT_API_KEY não configurada." };
+    const urlId = Buffer.from(urlToScan).toString('base64').replace(/=/g, '');
+    const url = `https://www.virustotal.com/api/v3/urls/${urlId}`;
+    const headers = { 'x-apikey': VT_API_KEY };
+    try {
+        const response = await axios.get(url, { headers });
+        const attrs = response.data.data.attributes;
+        const stats = attrs.last_analysis_stats || {};
+        const verdict = (stats.malicious || 0) > 0 ? 'malicious' : 'clean';
+        return { found: true, verdict, stats, raw: response.data };
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            // Se a URL não foi analisada, podemos submetê-la para análise, mas por simplicidade, retornamos 'not found'.
+            return { found: false, verdict: 'unknown' };
+        }
+        console.error("Erro no VirusTotal (URL):", error.message);
+        return { error: `Erro no VirusTotal (URL): ${error.message}` };
+    }
+}
+
 function calculateFinalVerdict(localVerdict, externalResults) {
     // Com apenas o VirusTotal, o veredito dele é o final.
     const vtResult = externalResults.virustotal;
@@ -146,6 +168,35 @@ app.get('/', (req, res) => {
 
 app.get('/faq', (req, res) => {
     res.render('faq');
+});
+
+// Rota de API para análise de URL
+app.post('/api/scan_url', async (req, res) => {
+    if (!VT_API_KEY) {
+        return res.status(403).json({ ok: false, error: "Aplicação não configurada." });
+    }
+    const { url } = req.body;
+    if (!url) {
+        return res.status(400).json({ ok: false, error: "URL não fornecida." });
+    }
+
+    console.log(`Recebida URL para análise: ${url}`);
+
+    const vtResult = await queryVirustotalUrl(url);
+    const externalResults = { virustotal: vtResult };
+    const finalVerdict = calculateFinalVerdict('unknown', externalResults);
+
+    const aiAnalysis = await queryAI(finalVerdict, url, externalResults);
+
+    const result = {
+        url: url, // Usamos 'url' em vez de 'file_name'
+        external: externalResults,
+        final_verdict: finalVerdict,
+        ai_analysis: aiAnalysis,
+        scanned_at: Math.floor(Date.now() / 1000)
+    };
+
+    res.json({ ok: true, result: result });
 });
 
 // Rota de API para análise de arquivo

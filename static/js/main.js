@@ -1,17 +1,25 @@
 // Garante que o script só rode após o carregamento completo da página.
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 1. Seleciona todos os elementos da interface com os quais vamos interagir.
-    const form = document.getElementById('analysis-form');
+    // --- 1. Seleção de Elementos da UI ---
+    const fileForm = document.getElementById('file-analysis-form');
+    const urlForm = document.getElementById('url-analysis-form');
     const fileInput = document.getElementById('file-input');
+    const urlInput = document.getElementById('url-input');
     const fileInputWrapper = document.querySelector('.file-input-wrapper');
     const fileNameDisplay = document.getElementById('file-name');
-    const submitBtn = document.getElementById('submit-btn');
+    const fileSubmitBtn = document.getElementById('file-submit-btn');
     const loaderOverlay = document.getElementById('loader-overlay');
+
+    // Elementos das Abas
+    const tabFile = document.getElementById('tab-file');
+    const tabUrl = document.getElementById('tab-url');
+    const fileSection = document.getElementById('file-section');
+    const urlSection = document.getElementById('url-section');
 
     // Função para habilitar/desabilitar o botão de análise.
     function updateButtonState() {
-        submitBtn.disabled = fileInput.files.length === 0;
+        fileSubmitBtn.disabled = fileInput.files.length === 0;
     }
 
     // Função para mostrar o nome do arquivo selecionado.
@@ -24,7 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateButtonState();
     }
 
-    // 2. Adiciona os "ouvintes" de eventos aos elementos.
+    // --- 2. Lógica das Abas ---
+    tabFile.addEventListener('click', () => {
+        tabFile.classList.add('active');
+        tabUrl.classList.remove('active');
+        fileSection.style.display = 'block';
+        urlSection.style.display = 'none';
+    });
+
+    tabUrl.addEventListener('click', () => {
+        tabUrl.classList.add('active');
+        tabFile.classList.remove('active');
+        urlSection.style.display = 'block';
+        fileSection.style.display = 'none';
+    });
 
     // Quando um arquivo é selecionado pelo clique.
     fileInput.addEventListener('change', displayFileName);
@@ -48,8 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. Lógica principal: o que acontece ao enviar o formulário.
-    form.addEventListener('submit', async (e) => {
+    // --- 3. Lógica de Envio (Análise de Arquivo) ---
+    fileForm.addEventListener('submit', async (e) => {
         e.preventDefault(); // Previne o recarregamento da página.
 
         if (fileInput.files.length === 0) {
@@ -84,6 +105,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- 4. Lógica de Envio (Análise de URL) ---
+    urlForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const url = urlInput.value.trim();
+        if (!url) {
+            alert('Por favor, insira uma URL para analisar.');
+            return;
+        }
+
+        loaderOverlay.style.display = 'flex';
+
+        try {
+            const response = await fetch('/api/scan_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url }),
+            });
+
+            const result = await response.json();
+
+            if (result.ok && result.result) {
+                renderResults(result.result);
+            } else {
+                throw new Error(result.error || 'Ocorreu um erro desconhecido.');
+            }
+        } catch (error) {
+            alert('Erro na análise: ' + error.message);
+        } finally {
+            loaderOverlay.style.display = 'none';
+        }
+    });
+
     // Função para renderizar os resultados dinamicamente
     function renderResults(data) {
         const resultsContainer = document.getElementById('results-container');
@@ -102,13 +156,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const vtStats = data.external.virustotal?.stats;
         const vtDetections = vtStats ? `${vtStats.malicious} / ${Object.values(vtStats).reduce((a, b) => a + b, 0)}` : 'N/A';
 
-        // Prepara o HTML da análise de IA
+        // Prepara o HTML da análise de IA, preservando quebras de linha e adicionando emojis
         let aiHTML = '';
         if (data.ai_analysis && data.ai_analysis.explanation) {
-            // Simples conversão de Markdown para HTML (negrito e listas)
-            const formattedExplanation = data.ai_analysis.explanation
+            let formattedExplanation = data.ai_analysis.explanation
+                .replace(/\n/g, '<br>') // Converte quebras de linha para <br>
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // **texto** -> <strong>texto</strong>
-                .replace(/^\s*(\d+\.)\s*(.*)/gm, '<p><strong>$1</strong> $2</p>'); // 1. item -> <p><strong>1.</strong> item</p>
+                .replace(/Baixo 🟢/g, 'Baixo <span style="color: var(--success);">🟢</span>')
+                .replace(/Médio 🟡/g, 'Médio <span style="color: var(--warning);">🟡</span>')
+                .replace(/Alto 🔴/g, 'Alto <span style="color: var(--danger);">🔴</span>')
+                .replace(/Crítico ⚫/g, 'Crítico <span style="color: var(--danger);">⚫</span>');
 
             aiHTML = `<hr style="border-color: var(--border); margin: 1rem 0;">
                       <h3 style="margin-bottom: 0.5rem;">Relatório da Inteligência Artificial</h3>
@@ -119,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultsHTML = `
             <div class="card-body">
                 <h2 style="margin-bottom: 1rem;">Resultado da Análise</h2>
-                <p><strong>Arquivo:</strong> ${data.file_name}</p>
+                <p><strong>Item Analisado:</strong> ${data.file_name || data.url}</p>
                 <p><strong>Veredito Final:</strong> <span style="color: var(--${verdictClass}); font-weight: bold; text-transform: uppercase;">${data.final_verdict}</span></p>
                 <hr style="border-color: var(--border); margin: 1rem 0;">
                 <p><strong>VirusTotal:</strong> ${vtDetections} detecções</p>

@@ -47,11 +47,40 @@ body {
 
 .card-header h1 {
     font-size: 1.5rem;
-    margin: 0;
+    margin-bottom: 1rem;
 }
 
 .card-body {
     padding: 1.5rem;
+}
+
+/* --- Abas --- */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin: 0 -1.5rem -1px; /* Alinha com as bordas do card-header */
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
 }
 
 /* --- Formulário e Inputs --- */
@@ -114,6 +143,21 @@ body {
     font-size: 0.9rem;
     color: var(--accent);
     font-weight: 500;
+}
+
+.url-input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.url-input:focus {
+    outline: none;
+    border-color: var(--accent);
 }
 
 /* --- Botão --- */

@@ -12,20 +12,33 @@
         <div class="app-card">
             <header class="card-header">
                 <h1>Analisador de Malware</h1>
+                <div class="tabs">
+                    <button id="tab-file" class="tab-btn active">Arquivo</button>
+                    <button id="tab-url" class="tab-btn">URL</button>
+                </div>
             </header>
-            <div class="card-body">
-                <form id="analysis-form" class="analysis-form">
+            <div class="card-body" id="file-section">
+                <form id="file-analysis-form" class="analysis-form">
                     <div class="form-group">
-                        <label class="form-label">Analisar um Arquivo</label>
                         <div class="file-input-wrapper">
                             <input type="file" name="file" id="file-input">
                             <span class="file-input-text">Arraste e solte ou clique para selecionar</span>
                             <span id="file-name"></span>
                         </div>
                     </div>
-                    <button type="submit" id="submit-btn" class="btn" disabled>Analisar</button>
+                    <button type="submit" id="file-submit-btn" class="btn" disabled>Analisar Arquivo</button>
                 </form>
             </div>
+            <div class="card-body" id="url-section" style="display: none;">
+                <form id="url-analysis-form" class="analysis-form">
+                    <div class="form-group">
+                        <label for="url-input" class="form-label">Insira a URL para análise</label>
+                        <input type="url" id="url-input" class="url-input" placeholder="https://exemplo.com" required>
+                    </div>
+                    <button type="submit" id="url-submit-btn" class="btn">Analisar URL</button>
+                </form>
+            </div>
+
             <!-- Container onde os resultados serão injetados -->
             <div id="results-container"></div>
 
