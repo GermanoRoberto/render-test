@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabUrl = document.getElementById('tab-url');
     const fileSection = document.getElementById('file-section');
     const urlSection = document.getElementById('url-section');
+    const tabAbout = document.getElementById('tab-about');
+    const aboutSection = document.getElementById('about-section');
 
     // Função para habilitar/desabilitar o botão de análise.
     function updateButtonState() {
@@ -36,15 +38,28 @@ document.addEventListener('DOMContentLoaded', () => {
     tabFile.addEventListener('click', () => {
         tabFile.classList.add('active');
         tabUrl.classList.remove('active');
+        tabAbout.classList.remove('active');
         fileSection.style.display = 'block';
         urlSection.style.display = 'none';
+        aboutSection.style.display = 'none';
     });
 
     tabUrl.addEventListener('click', () => {
         tabUrl.classList.add('active');
         tabFile.classList.remove('active');
+        tabAbout.classList.remove('active');
         urlSection.style.display = 'block';
         fileSection.style.display = 'none';
+        aboutSection.style.display = 'none';
+    });
+
+    tabAbout.addEventListener('click', () => {
+        tabAbout.classList.add('active');
+        tabFile.classList.remove('active');
+        tabUrl.classList.remove('active');
+        aboutSection.style.display = 'block';
+        fileSection.style.display = 'none';
+        urlSection.style.display = 'none';
     });
 
     // Quando um arquivo é selecionado pelo clique.
@@ -141,7 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para renderizar os resultados dinamicamente
     function renderResults(data) {
         const resultsContainer = document.getElementById('results-container');
-        const formContainer = document.querySelector('.card-body');
+        // Esconde todas as seções de formulário/sobre
+        [fileSection, urlSection, aboutSection].forEach(sec => sec.style.display = 'none');
 
         // Esconde o formulário
         formContainer.style.display = 'none';

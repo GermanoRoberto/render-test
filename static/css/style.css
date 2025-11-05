@@ -252,3 +252,50 @@ body {
 .status-dot.inactive {
     background-color: var(--danger);
 }
+
+/* --- Seção Sobre --- */
+.about-section h3 {
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.about-section p {
+    color: var(--muted);
+    margin-bottom: 1rem;
+}
+
+.about-section ul {
+    list-style-position: inside;
+    padding-left: 0.5rem;
+    color: var(--muted);
+}
+
+.about-section li {
+    margin-bottom: 0.75rem;
+}
+
+/* --- Rodapé e Links Sociais --- */
+.card-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-links a {
+    color: var(--muted);
+    transition: color 0.2s;
+}
+
+.social-links a:hover {
+    color: var(--text);
+}
