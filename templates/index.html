@@ -4,26 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analisador de Malware</title>
-
-    <!-- ADAPTAÇÃO CORRETA: O caminho começa com '/' e aponta para o arquivo dentro da pasta 'static' -->
     <link rel="stylesheet" href="/css/style.css">
-
 </head>
 <body>
 
-    <header>
-        <h1>Analisador de Malware</h1>
-    </header>
-
-    <main>
-        <!-- Seu formulário de upload e outros elementos da UI aqui -->
-        <form id="upload-form">
-            <input type="file" name="file" id="file-input" required>
-            <button type="submit">Analisar Arquivo</button>
-        </form>
+    <main class="container">
+        <div class="app-card">
+            <header class="card-header">
+                <h1>Analisador de Malware</h1>
+            </header>
+            <div class="card-body">
+                <form id="analysis-form" class="analysis-form">
+                    <div class="form-group">
+                        <label class="form-label">Analisar um Arquivo</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="file" id="file-input">
+                            <span class="file-input-text">Arraste e solte ou clique para selecionar</span>
+                            <span id="file-name"></span>
+                        </div>
+                    </div>
+                    <button type="submit" id="submit-btn" class="btn" disabled>Analisar</button>
+                </form>
+            </div>
+            <div class="card-footer" style="padding: 1rem 1.5rem; border-top: 1px solid var(--border);">
+                <div class="status-indicator">
+                    <% if (key_status.VT_API_KEY) { %>
+                        <span class="status-dot active"></span>
+                        <span>VirusTotal: Ativo</span>
+                    <% } else { %>
+                        <span class="status-dot inactive"></span>
+                        <span>VirusTotal: Inativo (Chave não configurada)</span>
+                    <% } %>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- ADAPTAÇÃO CORRETA: O script é chamado no final do body, com o caminho começando com '/' -->
+    <!-- Overlay de Carregamento -->
+    <div id="loader-overlay" class="loader-overlay">
+        <div class="loader"></div>
+        <span class="loader-text">Analisando... Por favor, aguarde.</span>
+    </div>
+
     <script src="/js/main.js"></script>
 
 </body>
